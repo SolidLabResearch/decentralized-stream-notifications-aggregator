@@ -18,5 +18,9 @@
         "supertest": "^6.3.3",
         "ts-jest": "^29.0.3",
         "typescript": "^4.9.4"
+    },
+    "dependencies": {
+        "@types/redis": "^4.0.11",
+        "redis": "^4.6.13"
     }
 }
