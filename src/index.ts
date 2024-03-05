@@ -28,9 +28,9 @@ program
 
 program
     .command('cache-notifications')
-    .description('Starts the cache service for notifications from the solid server(s).')
+    .description('Starts the cache service for notifications from the LDES stream stored in the solid server(s).')
     .option('-p, --port <port>', 'The port where the HTTP server will listen.', '8085')
-    .option('-p --pod <pod>', 'The location of the Solid Pod', 'http://localhost:3000/aggregation_pod/')
+    .option('-l --ldes <ldes>', 'The location of the LDES Stream', 'http://localhost:3000/aggregation_pod/aggregation/')
     .action((options: any) => {
         new CacheServiceHTTPServer(options.port, options.pod, logger);
     });

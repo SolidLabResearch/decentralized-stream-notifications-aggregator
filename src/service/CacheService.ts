@@ -1,16 +1,17 @@
-import { createClient } from "redis";
+import { Redis } from "ioredis";
 /**
  * A service for interacting with the Redis cache.
  * @class CacheService
  */
 export class CacheService {
-    private client: any;
+    public client: any;
     /**
      * Creates an instance of CacheService.
      * @memberof CacheService
      */
     constructor() {
-        this.client = createClient({});
+        // defaults to localhost:6379 if no options are provided, which is the default for Redis.
+        this.client = new Redis({});
         this.setupListeners();
     }
     /**
@@ -66,6 +67,7 @@ export class CacheService {
      */
     async disconnect() {
         await this.client.quit();
+        return true;
     }
 
     /**

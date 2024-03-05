@@ -6,6 +6,8 @@ An initial architecutre (not final) of the Solid Stream Notifications Cache is s
 
 ![Solid Stream Notifications Cache Architecture](./architecture.png)
 
+- In the current architecture, we only work with the webhook notification of the solid pods and cache them. We don't support websocket notifications yet as they are not very scalabble.(but would appreciate a PR for that in case you wish to implement it).
+
 ## License
 This code is copyrighted by [Ghent University - imec](https://www.ugent.be/ea/idlab/en) and released under the [MIT License](./LICENSE). 
 
