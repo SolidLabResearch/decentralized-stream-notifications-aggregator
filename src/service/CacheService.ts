@@ -1,4 +1,5 @@
 import { Redis } from "ioredis";
+import { RedisStatus } from "../utils/Types";
 /**
  * A service for interacting with the Redis cache.
  * @class CacheService
@@ -78,6 +79,14 @@ export class CacheService {
      */
     async delete(key: string) {
         await this.client.del(key);
+    }
+    /**
+     * Get the status of the Redis cache.
+     * @returns {Promise<RedisStatus>} - The current status of the Redis Cache, returned as a promise.
+     * @memberof CacheService
+     */
+    async get_status(): Promise<RedisStatus> {
+        return await this.client.status;
     }
 }
 

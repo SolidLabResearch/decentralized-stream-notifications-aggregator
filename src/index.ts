@@ -1,7 +1,7 @@
 import { CacheServiceHTTPServer } from "./server/CacheServiceHTTPServer";
 import * as bunyan from "bunyan";
 import * as fs from 'fs';
-const program = require('commander');
+import { program } from "commander";
 const log_file = fs.createWriteStream('./logs/info.log', { flags: 'a' });
 
 const logger = bunyan.createLogger({
@@ -30,7 +30,9 @@ program
     .command('cache-notifications')
     .description('Starts the cache service for notifications from the LDES stream stored in the solid server(s).')
     .option('-p, --port <port>', 'The port where the HTTP server will listen.', '8085')
-    .option('-l --ldes <ldes>', 'The location of the LDES Stream', 'http://localhost:3000/aggregation_pod/aggregation/')
+    .option('-l --ldes <ldes>', 'The location of the LDES Stream', ['http://localhost:3000/aggregation_pod/aggregation/'])
     .action((options: any) => {
-        new CacheServiceHTTPServer(options.port, options.pod, logger);
+        new CacheServiceHTTPServer(options.port, options.ldes, logger);
     });
+
+program.parse(process.argv);

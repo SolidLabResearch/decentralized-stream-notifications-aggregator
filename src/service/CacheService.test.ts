@@ -28,4 +28,9 @@ describe('CacheService', () => {
         const is_disconnected = await cacheService.disconnect();
         expect(is_disconnected).toBe(true);
     });
+
+    it('should_describe_the_cache', async() => {
+        const status = await cacheService.get_status();
+        expect(status).toBe('wait');
+    })
 }); 
