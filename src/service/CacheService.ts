@@ -88,5 +88,33 @@ export class CacheService {
     async get_status(): Promise<RedisStatus> {
         return await this.client.status;
     }
+    /**
+     * Get all key-value pairs from the Redis cache.
+     * This method is not recommended for large databases, as it will load all key-value pairs into memory and be slow.
+     * However, it is useful for notification caching, where the database is expected to be small to get the missing notifications.
+     * @return {Promise<{ [key: string]: string }>} - A promise that resolves to an object containing all key-value pairs in the cache.
+     * @memberof CacheService
+     */
+    async read_whole_database(): Promise<{ [key: string]: string }> {
+        let cursor = '0';
+        const key_values: { [key: string]: string } = {};
+        do {
+            const [newCursor, keys] = await this.client.scan(cursor);
+            cursor = newCursor;
+
+            if (keys.length > 0) {
+                const values = await this.client.mget(...keys);
+                keys.forEach((key: any, index: any) => {
+                    const value = values[index];
+                    if (value !== null) {
+                        key_values[key] = value;
+                    } else {
+                        console.warn(`Key '${key}' does not exist.`);
+                    }
+                });
+            }
+        } while (cursor !== '0');
+        return key_values
+    }
 }
 
