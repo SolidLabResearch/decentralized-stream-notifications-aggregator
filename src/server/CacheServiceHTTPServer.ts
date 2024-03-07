@@ -130,6 +130,11 @@ export class CacheServiceHTTPServer {
         const event_time = query_parameters.event_time as string | undefined || 'Anonymous';
         response.writeHead(200, 'OK', { 'Content-Type': 'text/turtle' });
         response.end(await this.cacheService.get(event_time));
+        response.destroy();
+        response.on('finish', () => {
+        console.log(`GET request for ${request.url} has been handled`);
+
+        })
     }
     /**
      * Handles the DELETE requests to the HTTP server.
