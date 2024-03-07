@@ -92,7 +92,7 @@ export class CacheService {
      * Get all key-value pairs from the Redis cache.
      * This method is not recommended for large databases, as it will load all key-value pairs into memory and be slow.
      * However, it is useful for notification caching, where the database is expected to be small to get the missing notifications.
-     * @return {Promise<{ [key: string]: string }>} - A promise that resolves to an object containing all key-value pairs in the cache.
+     * @returns {Promise<{ [key: string]: string }>} - A promise that resolves to an object containing all key-value pairs in the cache.
      * @memberof CacheService
      */
     async read_whole_database(): Promise<{ [key: string]: string }> {

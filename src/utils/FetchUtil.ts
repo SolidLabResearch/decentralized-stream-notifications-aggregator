@@ -1,6 +1,16 @@
 import { Readable } from "stream"
 import { CacheService } from "../service/CacheService";
 const cache_service = new CacheService();
+/**
+ * Fetches the members from the cache service between the specified dates.
+ * @param {{
+ *     from?: Date,
+ *     until?: Date,
+ * }} [opts] - The options for the fetch.
+ * @param {Date} [opts.from] - The start date.
+ * @param {Date} [opts.until] - The end date.
+ * @returns {Promise<Readable>} - A promise that resolves to a readable stream of the members.
+ */
 export async function getMembers(opts?: {
     from?: Date,
     until?: Date,
