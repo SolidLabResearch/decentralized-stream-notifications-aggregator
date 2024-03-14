@@ -1,14 +1,21 @@
 ## Solid Stream Notifications Aggregator
 
-The Solid Stream Notifications Aggregator is a service which works on top of one or more Solid Pods to provide an immediate aggregator for the clients to consume the streaming data stored in the Solid Pods. The Stream Registry maintains state with the Solid Pods and provides an interface for the clients to interact with the registry instead of the Solid Pods directly. As the experiment done by the maintainers of [CSS](https://github.com/CommunitySolidServer/CommunitySolidServer) demonstrated [here](https://github.com/CommunitySolidServer/CommunitySolidServer/issues/1843#issuecomment-1948600398), the different configurations of the Solid Server can handle around 1k - 2k concurrent GET requests. Some configurations however, such as using the distributed locking approach with the Redis server, it can handle around 15k requests. However, only when the lock expiration time is set to a maximum of 5 minutes (which is not feasible). In cases where there are 3k concurrent GET requests, the response time for the requests is too high. In the expriment done, it took around 17 seconds to respond to 3k concurrent GET requests. This is not feasible for a real-time application as the 2999th client will have to wait for 17 seconds to get the response. The Solid Stream Notifications Aggregator is designed to solve this problem by providing an aggregation for the clients to consume the streaming data stored in the Solid Pods. 
+The Solid Stream Notifications Aggregator is a service which works on top of one or more Solid Pods to provide an immediate aggregator for the clients to consume the latest streaming data stored in the Solid Pods via the Solid Notifications Protocol's [WebHookChannel2023](https://solid.github.io/notifications/webhook-channel-2023).  
+
 
 An initial architecutre of the Solid Stream Notifications Aggregator is shown below:
 
 ![Solid Stream Notifications Aggregator Architecture](./architecture.png)
 
-- In the current architecture, we only work with the webhook notification of the solid pods and Aggregator them. We don't support websocket notifications yet as they are not very scalabble.(but would appreciate a PR for that in case you wish to implement it).
 
 ## Installation
+
+To install the server, you can run the following command:
+```bash
+npm install
+```
+
+Make sure you have a Solid Server running which supports the WebHookChannel2023 for receiving notifications. We recommend using the [Community Solid Server](https://github.com/CommunitySolidServer/CommunitySolidServer) with the WebHook configuration which can be created using the [CSS Config Generator](https://communitysolidserver.github.io/configuration-generator/v7/).
 
 ## Usage
 
