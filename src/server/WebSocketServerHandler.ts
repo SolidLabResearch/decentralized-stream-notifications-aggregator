@@ -7,7 +7,7 @@ import { SubscribeNotification } from '../service/SubscribeNotification';
 export class WebSocketServerHandler {
 
     public websocket_server: any;
-    public websocket_connections: Map<string, WebSocket>;
+    public websocket_connections: Map<string, WebSocket[]>;
     public subscribe_notification: SubscribeNotification;
     /**
      * Creates an instance of WebSocketServerHandler.
@@ -16,7 +16,7 @@ export class WebSocketServerHandler {
      */
     constructor(websocket_server: WebSocket.server) {
         this.websocket_server = websocket_server;
-        this.websocket_connections = new Map<string, WebSocket>();
+        this.websocket_connections = new Map<string, WebSocket[]>();
         this.subscribe_notification = new SubscribeNotification();
     }
     /**
@@ -31,26 +31,33 @@ export class WebSocketServerHandler {
 
         this.websocket_server.on('request', (request: any) => {
             const connection = request.accept('solid-stream-notifications-aggregator', request.origin);
-            connection.on('message', (message: any) => {
+            connection.on('message', async (message: any) => {
                 if (message.type === 'utf8') {
                     const message_utf8 = message.utf8Data;
                     const ws_message = JSON.parse(message_utf8);
                     if (Object.keys(ws_message).includes('subscribe')) {
-                        console.log(`Received a subscribe message from the client.`);
-                        const stream_to_subscribe = ws_message.subscribe;
-                        for (const stream of stream_to_subscribe) {
-                            this.subscribe_notification.subscribe(stream);
-                            console.log(`Subscribed to the stream: ${stream}`);
-                            this.set_connections(stream, connection);
+                        const streams_to_subscribe = ws_message.subscribe;
+                        for (const stream_to_subscribe of streams_to_subscribe){
+                            this.set_connections(stream_to_subscribe, connection);
                         }
                     }
-                    else if (Object.keys(ws_message).includes('event')) {
-                        const connection = this.websocket_connections.get(ws_message.stream);
-                        if (connection !== undefined) {
-                            connection.send(JSON.stringify(ws_message));
+                    else if (Object.keys(ws_message).includes('event')){
+                        console.log(`Received an event message from the notification server.`);
+                        for (const [stream, connection] of this.websocket_connections){
+                            if(ws_message.stream === stream){
+                                for(const conn of connection){
+                                    conn.send(JSON.stringify(ws_message));
+                                }
+                            }
                         }
                     }
                 }
+            });
+            connection.on('close', (reasonCode: number, description: string) => {
+                console.log(`Peer ${connection.remoteAddress} disconnected.`);
+                console.log(`Reason code: ${reasonCode}`);
+                console.log(`Description: ${description}`);
+                
             });
         });
     }
@@ -61,6 +68,17 @@ export class WebSocketServerHandler {
      * @memberof WebSocketServerHandler
      */
     public set_connections(subscribed_stream: string, connection: WebSocket): void {
-        this.websocket_connections.set(subscribed_stream, connection);
+        if (!this.websocket_connections.has(subscribed_stream)) {   
+            this.subscribe_notification.subscribe(subscribed_stream);                     
+            this.websocket_connections.set(subscribed_stream, [connection]);
+        }
+        else {
+            const connections = this.websocket_connections.get(subscribed_stream);
+            if (connections !== undefined) {
+                connections.push(connection);
+                this.websocket_connections.set(subscribed_stream, connections);
+            }
+            
+        }
     }
 }

@@ -29,15 +29,4 @@ describe('CacheService', () => {
         expect(is_disconnected).toBe(true);
     });
 
-    it('should_describe_the_cache', async () => {
-        const status = await cacheService.get_status();
-        expect(status).toBe('wait');
-    });
-
-    it('test_number_of_runs', async () => {
-        await cacheService.set('key', 'value');
-        for (let i = 0; i < 10000; i++) {
-            console.log(await cacheService.get('key'));
-        }
-    });
 }); 

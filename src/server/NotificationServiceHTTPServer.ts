@@ -11,8 +11,8 @@ import { WebSocketServerHandler } from './WebSocketServerHandler';
  * @class NotificationServiceHTTPServer
  */
 export class NotificationServiceHTTPServer {
-    private readonly cacheService: CacheService;
-    private readonly server: http.Server;
+    public cacheService: CacheService;
+    public server: http.Server;
     public connection: any;
     public client: any;
     public logger: any;
@@ -48,7 +48,7 @@ export class NotificationServiceHTTPServer {
      * @param {number} port - The port where the HTTP server will listen.
      * @memberof NotificationServiceHTTPServer
      */
-    private async setupServer(port: number) {
+    public async setupServer(port: number) {
         this.server.listen(port, () => {
             this.logger.info(`Server listening on port ${port}`);
         });
@@ -84,7 +84,7 @@ export class NotificationServiceHTTPServer {
      * @returns {Promise<void>}
      * @memberof NotificationServiceHTTPServer
      */
-    private async handleNotificationPostRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+    public async handleNotificationPostRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
         let body = '';
         request.on('data', (chunk) => {
             body += chunk.toString();
@@ -133,7 +133,7 @@ export class NotificationServiceHTTPServer {
      * @returns {Promise<void>}
      * @memberof NotificationServiceHTTPServer
      */
-    private async handleClientGetRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+    public async handleClientGetRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
         this.logger.info(`GET request received for ${request.url}`)
         console.log(`GET request received for ${request.url}`);
         const parsed_url = url.parse(request.url!, true);
@@ -155,7 +155,7 @@ export class NotificationServiceHTTPServer {
      * @returns {Promise<void>} - A promise which responses nothing.
      * @memberof NotificationServiceHTTPServer
      */
-    private async handleNotificationDeleteRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+    public async handleNotificationDeleteRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
         const parsed_url = url.parse(request.url!, true);
         const query_parameters = parsed_url.query;
         const event_time = query_parameters.event_time as string | undefined || 'Anonymous';

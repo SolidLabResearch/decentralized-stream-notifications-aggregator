@@ -1,91 +1,63 @@
-// import { SubscribeNotification } from './SubscribeNotification';
-// import { extract_ldp_inbox, extract_subscription_server } from '../utils/Util';
+import { SubscribeNotification } from './SubscribeNotification';
+import { extract_ldp_inbox, extract_subscription_server } from '../utils/Util';
 
-// jest.mock('../utils/Util', () => ({
-//   extract_ldp_inbox: jest.fn(),
-//   extract_subscription_server: jest.fn(),
-// }));
+jest.mock('../utils/Util', () => ({
+    extract_ldp_inbox: jest.fn(),
+    extract_subscription_server: jest.fn()
+}));
 
-// describe('SubscribeNotification', () => {
-//   afterEach(() => {
-//     jest.clearAllMocks();
-//   });
+describe('SubscribeNotification', () => {
+    describe('subscribe method', () => {
+        it('should subscribe to the notification server successfully', async () => {
+            // Mocking dependencies
+            const ldes_stream = 'example_ldes_stream';
+            const inbox = 'example_inbox';
+            const subscriptionServer = { location: 'example_location' };
+            (extract_ldp_inbox as jest.Mock).mockResolvedValue(inbox);
+            (extract_subscription_server as jest.Mock).mockResolvedValue(subscriptionServer);
 
-//   it('should subscribe successfully', async () => {
-//     const streams = ['stream1', 'stream2'];
-//     const subscribeNotification = new SubscribeNotification(streams);
+            // Mocking fetch
+            global.fetch = jest.fn().mockResolvedValue({ status: 200 });
 
-//     (extract_ldp_inbox as jest.Mock).mockResolvedValueOnce('inbox1');
-//     (extract_subscription_server as jest.Mock).mockResolvedValueOnce({
-//       location: 'http://subscription-server1',
-//     });
+            const subscribeNotification = new SubscribeNotification();
+            const result = await subscribeNotification.subscribe(ldes_stream);
 
-//     const fetchMock = jest.fn().mockResolvedValueOnce({ status: 200 });
-//     global.fetch = fetchMock;
+            expect(result).toBe(true);
+            expect(extract_ldp_inbox).toHaveBeenCalledWith(ldes_stream);
+            expect(extract_subscription_server).toHaveBeenCalledWith(inbox);
+            expect(fetch).toHaveBeenCalledWith(subscriptionServer.location, expect.any(Object));
+        });
 
-//     const result = await subscribeNotification.subscribe();
+        it('should throw an error if subscription server is undefined', async () => {
+            // Mocking dependencies
+            const ldes_stream = 'example_ldes_stream';
+            (extract_ldp_inbox as jest.Mock).mockResolvedValue('example_inbox');
+            (extract_subscription_server as jest.Mock).mockResolvedValue(undefined);
 
-//     expect(result).toBe(true);
-//     expect(extract_ldp_inbox).toHaveBeenCalledWith('stream1');
-//     expect(extract_subscription_server).toHaveBeenCalledWith('inbox1');
-//     expect(fetchMock).toHaveBeenCalledWith('http://subscription-server1', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/ld+json',
-//       },
-//       body: JSON.stringify({
-//         '@context': ['https://www.w3.org/ns/solid/notification/v1'],
-//         type: 'http://www.w3.org/ns/solid/notifications#WebhookChannel2023',
-//         topic: 'inbox1',
-//         sendTo: 'http://localhost:8085/',
-//       }),
-//     });
-//   });
+            const subscribeNotification = new SubscribeNotification();
 
-//   it('should throw an error if subscription server is undefined', async () => {
-//     const streams = ['stream1'];
-//     const subscribeNotification = new SubscribeNotification(streams);
+            await expect(subscribeNotification.subscribe(ldes_stream)).rejects.toThrowError('Subscription server is undefined.');
+            expect(extract_ldp_inbox).toHaveBeenCalledWith(ldes_stream);
+            expect(extract_subscription_server).toHaveBeenCalledWith('example_inbox');
+        });
 
-//     (extract_ldp_inbox as jest.Mock).mockResolvedValueOnce('inbox1');
-//     (extract_subscription_server as jest.Mock).mockResolvedValueOnce(undefined);
+        it('should throw an error if subscription to the notification server fails', async () => {
+            // Mocking dependencies
+            const ldes_stream = 'example_ldes_stream';
+            const inbox = 'example_inbox';
+            const subscriptionServer = { location: 'example_location' };
+            (extract_ldp_inbox as jest.Mock).mockResolvedValue(inbox);
+            (extract_subscription_server as jest.Mock).mockResolvedValue(subscriptionServer);
 
-//     await expect(subscribeNotification.subscribe()).rejects.toThrow(
-//       'Subscription server is undefined.'
-//     );
+            // Mocking fetch
+            global.fetch = jest.fn().mockResolvedValue({ status: 400 });
 
-//     expect(extract_ldp_inbox).toHaveBeenCalledWith('stream1');
-//     expect(extract_subscription_server).toHaveBeenCalledWith('inbox1');
-//   });
+            const subscribeNotification = new SubscribeNotification();
 
-//   it('should throw an error if subscription to the notification server fails', async () => {
-//     const streams = ['stream1'];
-//     const subscribeNotification = new SubscribeNotification(streams);
-
-//     (extract_ldp_inbox as jest.Mock).mockResolvedValueOnce('inbox1');
-//     (extract_subscription_server as jest.Mock).mockResolvedValueOnce({
-//       location: 'http://subscription-server1',
-//     });
-
-//     const fetchMock = jest.fn().mockResolvedValueOnce({ status: 500 });
-//     global.fetch = fetchMock;
-
-//     await expect(subscribeNotification.subscribe()).rejects.toThrow(
-//       'The subscription to the notification server failed.'
-//     );
-
-//     expect(extract_ldp_inbox).toHaveBeenCalledWith('stream1');
-//     expect(extract_subscription_server).toHaveBeenCalledWith('inbox1');
-//     expect(fetchMock).toHaveBeenCalledWith('http://subscription-server1', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/ld+json',
-//       },
-//       body: JSON.stringify({
-//         '@context': ['https://www.w3.org/ns/solid/notification/v1'],
-//         type: 'http://www.w3.org/ns/solid/notifications#WebhookChannel2023',
-//         topic: 'inbox1',
-//         sendTo: 'http://localhost:8085/',
-//       }),
-//     });
-//   });
-// });
+            await expect(subscribeNotification.subscribe(ldes_stream)).rejects.toThrowError('The subscription to the notification server failed.');
+            expect(extract_ldp_inbox).toHaveBeenCalledWith(ldes_stream);
+            expect(extract_subscription_server).toHaveBeenCalledWith(inbox);
+            expect(fetch).toHaveBeenCalledWith(subscriptionServer.location, expect.any(Object));
+        });
+    });
+});

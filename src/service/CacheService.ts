@@ -124,7 +124,7 @@ export class CacheService {
      * @returns {Promise<{ key: string, value: string }>} - A promise that resolves to an object containing the most recent key-value pair in the cache.
      * @memberof CacheService
      */
-    async get_recent_key_value(ldes_stream: string): Promise<{ key: string, value: string }> {
+    async get_recent_key_value(ldes_stream: string): Promise<{ key: string, value: string } | undefined> {
         try {
             // example of a key is, stream:http://localhost:3000/aggregation_pod/aggregation/:1710250027636
             const pattern = `stream:${ldes_stream}:*`;
@@ -135,15 +135,13 @@ export class CacheService {
                 const b_timestamp = parseInt(b.split(":")[1]);
                 return b_timestamp - a_timestamp;
             });
-
-            console.log(sortedKeys);
-
             const most_recent_key = sortedKeys[sortedKeys.length - 1];
             const value = await this.client.get(most_recent_key);
-
-            return { key: most_recent_key, value: value };
+            if (value !== null) {
+                return { key: most_recent_key, value: value };
+            }
         } finally {
-            await this.client.quit();
+            // await this.client.quit();
         }
     }
 
