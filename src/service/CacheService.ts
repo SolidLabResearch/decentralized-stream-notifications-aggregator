@@ -116,5 +116,41 @@ export class CacheService {
         } while (cursor !== '0');
         return key_values
     }
+
+
+    async get_recent_key_value(ldes_stream: string): Promise<{ key: string, value: string }> {
+        try {
+            // example of a key is, stream:http://localhost:3000/aggregation_pod/aggregation/:1710250027636
+            const pattern = `stream:${ldes_stream}:*`;
+            const keys = await this.client.scan(0, "MATCH", pattern);
+
+            const sortedKeys = keys[1].sort((a: string, b: string) => {
+                const a_timestamp = parseInt(a.split(":")[1]);
+                const b_timestamp = parseInt(b.split(":")[1]);
+                return b_timestamp - a_timestamp;
+            });
+
+            console.log(sortedKeys);
+
+            const most_recent_key = sortedKeys[sortedKeys.length - 1];
+            const value = await this.client.get(most_recent_key);
+
+            return { key: most_recent_key, value: value };
+        } finally {
+            await this.client.quit();
+        }
+    }
+    
+    
+
+    async setTimeToLive(key: string, time_to_live: number) {
+        // setting the time to live for the key in seconds.
+        await this.client.expire(key, time_to_live);
+    }
+
+    async clearCache() {
+        await this.client.flushall();
+    }
+
 }
 

@@ -1,4 +1,4 @@
-import { CacheServiceHTTPServer } from "./server/CacheServiceHTTPServer";
+import { NotificationServiceHTTPServer } from "./server/NotificationServiceHTTPServer";
 import * as bunyan from "bunyan";
 import * as fs from 'fs';
 import { program } from "commander";
@@ -30,9 +30,8 @@ program
     .command('cache-notifications')
     .description('Starts the cache service for notifications from the LDES stream stored in the solid server(s).')
     .option('-p, --port <port>', 'The port where the HTTP server will listen.', '8085')
-    .option('-l --ldes <ldes>', 'The location of the LDES Stream', ['http://localhost:3000/aggregation_pod/aggregation/'])
     .action((options: any) => {
-        new CacheServiceHTTPServer(options.port, options.ldes, logger);
+        new NotificationServiceHTTPServer(options.port, logger);
     });
 
 program.parse(process.argv);

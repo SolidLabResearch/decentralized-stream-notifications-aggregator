@@ -5,14 +5,12 @@ import { extract_ldp_inbox, extract_subscription_server } from "../utils/Util";
  * @class SubscribeNotification
  */
 export class SubscribeNotification {
-    private ldes_streams: string[];
     /**
      * Creates an instance of SubscribeNotification.
      * @param {string[]} streams - An array of LDES streams to subscribe to, for real-time notifications.
      * @memberof SubscribeNotification
      */
-    constructor(streams: string[]) {
-        this.ldes_streams = streams;
+    constructor() {
     }
 
     /**
@@ -20,9 +18,8 @@ export class SubscribeNotification {
      * @returns {(Promise<boolean | undefined>)} - Returns a promise with a boolean or undefined. If the subscription is successful, it returns true. If the subscription fails, it throws an error.
      * @memberof SubscribeNotification
      */
-    public async subscribe(): Promise<boolean | undefined> {
-        for (const stream of this.ldes_streams) {
-            const inbox = await extract_ldp_inbox(stream) as string;
+    public async subscribe(ldes_stream: string): Promise<boolean | undefined> {
+            const inbox = await extract_ldp_inbox(ldes_stream) as string;
             const subscription_server = await extract_subscription_server(inbox);
             if (subscription_server === undefined) {
                 throw new Error("Subscription server is undefined.");
@@ -39,13 +36,13 @@ export class SubscribeNotification {
                         "sendTo": "http://localhost:8085/"
                     })
                 });
-                if (response.status === 200) {                    
+                if (response.status === 200) {
                     return true;
                 }
                 else {
                     throw new Error("The subscription to the notification server failed.");
                 }
             }
-        }
+        
     }
 }
