@@ -11,8 +11,8 @@ import { WebSocketServerHandler } from './WebSocketServerHandler';
  * @class NotificationServiceHTTPServer
  */
 export class NotificationServiceHTTPServer {
-    private readonly cacheService: CacheService;
-    private readonly server: http.Server;
+    public cacheService: CacheService;
+    public server: http.Server;
     public connection: any;
     public client: any;
     public logger: any;
@@ -23,7 +23,6 @@ export class NotificationServiceHTTPServer {
     /**
      * Creates an instance of NotificationServiceHTTPServer.
      * @param {number} port - The port where the HTTP server will listen.
-     * @param {string[]} pod_url - The location of the Solid Pod from which the notifications are retrieved.
      * @param {*} logger - The logger object.
      * @memberof NotificationServiceHTTPServer
      */
@@ -40,7 +39,7 @@ export class NotificationServiceHTTPServer {
         this.websocket_handler = new WebSocketServerHandler(this.websocket_server);
         this.setupServer(port);
         this.connect_to_websocket_server('ws://localhost:8085/');
-        this.websocket_handler.handle_communication(this.cacheService);
+        this.websocket_handler.handle_communication();
 
     }
     /**
@@ -49,7 +48,7 @@ export class NotificationServiceHTTPServer {
      * @param {number} port - The port where the HTTP server will listen.
      * @memberof NotificationServiceHTTPServer
      */
-    private async setupServer(port: number) {
+    public async setupServer(port: number) {
         this.server.listen(port, () => {
             this.logger.info(`Server listening on port ${port}`);
         });
@@ -85,7 +84,7 @@ export class NotificationServiceHTTPServer {
      * @returns {Promise<void>}
      * @memberof NotificationServiceHTTPServer
      */
-    private async handleNotificationPostRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+    public async handleNotificationPostRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
         let body = '';
         request.on('data', (chunk) => {
             body += chunk.toString();
@@ -134,7 +133,7 @@ export class NotificationServiceHTTPServer {
      * @returns {Promise<void>}
      * @memberof NotificationServiceHTTPServer
      */
-    private async handleClientGetRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+    public async handleClientGetRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
         this.logger.info(`GET request received for ${request.url}`)
         console.log(`GET request received for ${request.url}`);
         const parsed_url = url.parse(request.url!, true);
@@ -156,7 +155,7 @@ export class NotificationServiceHTTPServer {
      * @returns {Promise<void>} - A promise which responses nothing.
      * @memberof NotificationServiceHTTPServer
      */
-    private async handleNotificationDeleteRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+    public async handleNotificationDeleteRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
         const parsed_url = url.parse(request.url!, true);
         const query_parameters = parsed_url.query;
         const event_time = query_parameters.event_time as string | undefined || 'Anonymous';
@@ -165,6 +164,11 @@ export class NotificationServiceHTTPServer {
         response.end('OK');
     }
 
+    /**
+     * Sends a message to the WebSocket server.
+     * @param {string} message - The message to send.
+     * @memberof NotificationServiceHTTPServer
+     */
     public send_to_websocket_server(message: string) {
         if (this.connection.connected) {
             this.connection.sendUTF(message);
@@ -175,7 +179,11 @@ export class NotificationServiceHTTPServer {
             });
         }
     }
-
+    /**
+     * Connects to the WebSocket server.
+     * @param {string} wss_url - The URL of the WebSocket server.
+     * @memberof NotificationServiceHTTPServer
+     */
     public async connect_to_websocket_server(wss_url: string) {
         this.client.connect(wss_url, 'solid-stream-notifications-aggregator');
         this.client.on('connect', (connection: typeof websocket.connection) => {

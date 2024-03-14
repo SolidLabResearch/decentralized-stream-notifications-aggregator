@@ -118,7 +118,13 @@ export class CacheService {
     }
 
 
-    async get_recent_key_value(ldes_stream: string): Promise<{ key: string, value: string }> {
+    /**
+     * Get the most recent key-value pair from the Redis cache.
+     * @param {string} ldes_stream - The LDES stream to get the most recent key-value pair for.
+     * @returns {Promise<{ key: string, value: string }>} - A promise that resolves to an object containing the most recent key-value pair in the cache.
+     * @memberof CacheService
+     */
+    async get_recent_key_value(ldes_stream: string): Promise<{ key: string, value: string } | undefined> {
         try {
             // example of a key is, stream:http://localhost:3000/aggregation_pod/aggregation/:1710250027636
             const pattern = `stream:${ldes_stream}:*`;
@@ -129,25 +135,33 @@ export class CacheService {
                 const b_timestamp = parseInt(b.split(":")[1]);
                 return b_timestamp - a_timestamp;
             });
-
-            console.log(sortedKeys);
-
             const most_recent_key = sortedKeys[sortedKeys.length - 1];
             const value = await this.client.get(most_recent_key);
-
-            return { key: most_recent_key, value: value };
+            if (value !== null) {
+                return { key: most_recent_key, value: value };
+            }
         } finally {
-            await this.client.quit();
+            // await this.client.quit();
         }
     }
-    
-    
 
+
+    /**
+     * Sets the time to live for a key in the Redis cache.
+     * @param {string} key - The key to set the time to live for.
+     * @param {number} time_to_live - The time to live for the key in seconds.
+     * @memberof CacheService
+     */
     async setTimeToLive(key: string, time_to_live: number) {
         // setting the time to live for the key in seconds.
         await this.client.expire(key, time_to_live);
     }
 
+
+    /**
+     * Clears the Redis cache.
+     * @memberof CacheService
+     */
     async clearCache() {
         await this.client.flushall();
     }
