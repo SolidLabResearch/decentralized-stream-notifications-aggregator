@@ -7,7 +7,6 @@ import { extract_ldp_inbox, extract_subscription_server } from "../utils/Util";
 export class SubscribeNotification {
     /**
      * Creates an instance of SubscribeNotification.
-     * @param {string[]} streams - An array of LDES streams to subscribe to, for real-time notifications.
      * @memberof SubscribeNotification
      */
     constructor() {
@@ -15,6 +14,7 @@ export class SubscribeNotification {
 
     /**
      * Subscribes to the notification server for each LDES stream in the constructor, using the inbox and subscription server.
+     * @param {string} ldes_stream - The LDES stream to subscribe to.
      * @returns {(Promise<boolean | undefined>)} - Returns a promise with a boolean or undefined. If the subscription is successful, it returns true. If the subscription fails, it throws an error.
      * @memberof SubscribeNotification
      */
