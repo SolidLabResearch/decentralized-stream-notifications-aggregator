@@ -30,9 +30,11 @@ export class WebSocketServerHandler {
                     if (Object.keys(ws_message).includes('subscribe')) {
                         console.log(`Received a subscribe message from the client.`);
                         let stream_to_subscribe = ws_message.subscribe;
-                        this.subscribe_notification.subscribe(stream_to_subscribe);
-                        console.log(`Subscribed to the stream: ${stream_to_subscribe}`);
-                        this.set_connections(stream_to_subscribe, connection);
+                        for (let stream of stream_to_subscribe){
+                            this.subscribe_notification.subscribe(stream);
+                            console.log(`Subscribed to the stream: ${stream}`);
+                            this.set_connections(stream, connection);
+                        }
                     }
                     else if (Object.keys(ws_message).includes('event')) {
                         let connection = this.websocket_connections.get(ws_message.stream);

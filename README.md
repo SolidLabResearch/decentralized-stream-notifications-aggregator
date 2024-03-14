@@ -27,10 +27,11 @@ The interface for the service is a Websocket server with which you can interact.
 
 ```json
 {
-    "subscribe": "http://localhost:3000/aggregation_pod/aggregation/"
+    "subscribe": ["http://localhost:3000/aggregation_pod/aggregation/"]
 }
 ```
-which can be sent to the server to subscribe to the latest events from the particular LDES stream. The server will then send the events to the client as and when they are received. A sample script for the client is shown below:
+which can be sent to the server to subscribe to the latest events from the particular LDES stream. The client can pass one or multiple LDES Streams into the subscribe message array to receive the events from the server.
+The server will then send the events to the client as and when they are received. A sample script for the client is shown below:
 ```ts
 import { WebSocket } from "ws";
 
@@ -41,7 +42,7 @@ async function main() {
     websocket.once('open', () => {
         console.log('Connection to the WebSocket server was successful.');
         let message_object = {
-            subscribe: `http://localhost:3000/aggregation_pod/aggregation/`
+            subscribe: ['http://localhost:3000/aggregation_pod/aggregation/']
         };
         websocket.send(JSON.stringify(message_object));
     });
