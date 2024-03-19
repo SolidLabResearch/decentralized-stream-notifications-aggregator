@@ -97,26 +97,32 @@ export class NotificationServiceHTTPServer {
                 const stream = notification.target.replace(/\/\d+\/$/, '/');
                 const key = `stream:${stream}:${published_time}`;
                 const resource_location = notification.object;
-                try {
-                    const resource_fetch_response = await fetch(resource_location, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'text/turtle'
-                        }
-                    });
-                    this.logger.info("Resource fetched successfully");
-                    const response_text = await resource_fetch_response.text();
-                    // set the response in the cache, with the key as the LDES stream and the published time.
-                    // set the time to live for the cache to 60 seconds.
-                    console.log("Setting the response in the cache");
-                    await this.cacheService.set(key, response_text);
-                    await this.cacheService.setTimeToLive(key, 60);
-                    // TODO: notify the clients that the resource has been updated by first notifying the websocket server.
-                    const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "event": response_text });
+                if (this.check_if_container(resource_location) === true) {
+                    const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "container_location": resource_location });
                     this.send_to_websocket_server(parsed_notification);
-
-                } catch (error) {
-                    this.logger.error("Error fetching the resource: " + error);
+                }
+                else if (this.check_if_container(resource_location) === false) {
+                    try {
+                        const resource_fetch_response = await fetch(resource_location, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'text/turtle'
+                            }
+                        });
+                        this.logger.info("Resource fetched successfully");
+                        const response_text = await resource_fetch_response.text();
+                        // set the response in the cache, with the key as the LDES stream and the published time.
+                        // set the time to live for the cache to 60 seconds.
+                        console.log("Setting the response in the cache");
+                        await this.cacheService.set(key, response_text);
+                        await this.cacheService.setTimeToLive(key, 60);
+                        const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "event": response_text });
+                        this.send_to_websocket_server(parsed_notification);
+                    } catch (error) {
+                        this.logger.error("Error fetching the resource: " + error)
+                    }
+                } else {
+                    throw new Error("The resource location is neither a container nor a resource. This SHOULD NOT happen.");
                 }
                 response.writeHead(200, 'OK');
                 response.end('OK');
@@ -186,5 +192,14 @@ export class NotificationServiceHTTPServer {
         this.client.on('connectFailed', (error: any) => {
             this.logger.error(`Connection to the WebSocket server failed:`, error);
         });
+    }
+
+    public check_if_container(resource_location: string): boolean {
+        if (resource_location.endsWith('/')) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

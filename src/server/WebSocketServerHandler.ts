@@ -30,17 +30,29 @@ export class WebSocketServerHandler {
                     if (Object.keys(ws_message).includes('subscribe')) {
                         console.log(`Received a subscribe message from the client.`);
                         let stream_to_subscribe = ws_message.subscribe;
-                        for (let stream of stream_to_subscribe){
-                            this.subscribe_notification.subscribe(stream);
+                        for (let stream of stream_to_subscribe) {
+                            // We first subscribe to the latest inbox of the LDES stream.
+                            this.subscribe_notification.subscribe_inbox(stream);
                             console.log(`Subscribed to the stream: ${stream}`);
                             this.set_connections(stream, connection);
                         }
                     }
                     else if (Object.keys(ws_message).includes('event')) {
+                        console.log(`Received a new event message from the client.`);
                         let connection = this.websocket_connections.get(ws_message.stream);
                         if (connection !== undefined) {
                             connection.send(JSON.stringify(ws_message));
                         }
+                    }
+                    else if (Object.keys(ws_message).includes('container_location')) {
+                        console.log(`Received a new inbox container location message from the client.`);
+                        const inbox_container_location = ws_message.container_location;
+                        this.subscribe_notification.subscribe_inbox(inbox_container_location);
+                        console.log(`Subscribed to the inbox container location: ${inbox_container_location}`);
+                    }
+                    else {
+                        console.log(`Received an unknown message from the client with the following content: ${message_utf8}`);
+                        console.log(`The message is not recognized and supported by the Solid Stream Notifications Aggregator.`);
                     }
                 }
             });
