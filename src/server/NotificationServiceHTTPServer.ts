@@ -2,6 +2,7 @@ import * as http from 'http';
 import * as url from 'url';
 import { CacheService } from '../service/CacheService';
 import * as websocket from 'websocket';
+import axios from 'axios';
 import { SubscribeNotification } from '../service/SubscribeNotification';
 import { WebSocketServerHandler } from './WebSocketServerHandler';
 
@@ -106,14 +107,13 @@ export class NotificationServiceHTTPServer {
                 }
                 else if (this.check_if_container(resource_location) === false) {
                     try {
-                        const resource_fetch_response = await fetch(resource_location, {
-                            method: 'GET',
+                        const response_fetch_response = await axios.get(resource_location, {
                             headers: {
                                 'Accept': 'text/turtle'
                             }
                         });
                         this.logger.info("Resource fetched successfully");
-                        const response_text = await resource_fetch_response.text();
+                        const response_text = response_fetch_response.data;
                         // set the response in the cache, with the key as the LDES stream and the published time.
                         // set the time to live for the cache to 60 seconds.
                         console.log("Setting the response in the cache");

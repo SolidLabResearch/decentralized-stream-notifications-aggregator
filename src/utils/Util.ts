@@ -54,9 +54,9 @@ export async function extract_subscription_server(resource: string): Promise<Sub
  */
 export async function extract_ldp_inbox(ldes_stream_location: string) {
     try {
-        const response = await fetch(ldes_stream_location);
+        const response = await axios.get(ldes_stream_location);
         if (response) {
-            await parser.parse(await response.text(), (error: any, quad: any) => {
+            await parser.parse(response.data, (error: any, quad: any) => {
                 if (error) {
                     console.error(error);
                     throw new Error("Error while parsing LDES stream.");
@@ -91,15 +91,13 @@ export async function create_subscription(subscription_server: string, inbox_loc
             "topic": `${inbox_location}`,
             "sendTo": "http://localhost:8085/"
         }
-        const response = await fetch(subscription_server, {
-            method: 'POST',
+        const response = await axios.post(subscription_server, subscription, {
             headers: {
                 'Content-Type': 'application/ld+json'
-            },
-            body: JSON.stringify(subscription)
-        })
+            }
+        });
         if (response) {
-            return response.text();
+            return response.data();
         }
         else {
             console.error("The response object is empty.");

@@ -1,5 +1,6 @@
 import { extract_ldp_inbox, extract_subscription_server } from "../utils/Util";
 import * as WebSocket from 'websocket';
+import axios from 'axios';
 
 /**
  * This class is used to subscribe to the notification server for real-time notifications.
@@ -25,17 +26,17 @@ export class SubscribeNotification {
         if (subscription_server === undefined) {
             throw new Error("Subscription server is undefined.");
         } else {
-            const response_subscribe_ldes_stream = await fetch(subscription_server.location, {
-                method: 'POST',
+            const body = {
+                "@context": ["https://www.w3.org/ns/solid/notification/v1"],
+                "type": "http://www.w3.org/ns/solid/notifications#WebhookChannel2023",
+                "topic": ldes_stream,
+                "sendTo": "http://localhost:8085/"
+            }
+
+            const response_subscribe_ldes_stream = await axios.post(subscription_server.location, body, {
                 headers: {
                     'Content-Type': 'application/ld+json'
-                },
-                body: JSON.stringify({
-                    "@context": ["https://www.w3.org/ns/solid/notification/v1"],
-                    "type": "http://www.w3.org/ns/solid/notifications#WebhookChannel2023",
-                    "topic": ldes_stream,
-                    "sendTo": "http://localhost:8085/"
-                })
+                }
             });
             if (response_subscribe_ldes_stream.status === 200) {
                 return true;
@@ -51,18 +52,19 @@ export class SubscribeNotification {
         if (subscription_server === undefined) {
             throw new Error("Subscription server is undefined.");
         } else {
-            const response_subscribe_ldes_stream = await fetch(subscription_server.location, {
-                method: 'POST',
+            const body = {
+                "@context": ["https://www.w3.org/ns/solid/notification/v1"],
+                "type": "http://www.w3.org/ns/solid/notifications#WebhookChannel2023",
+                "topic": inbox_location,
+                "sendTo": "http://localhost:8085/"
+            };
+
+
+            const response_subscribe_ldes_stream = await axios.post(subscription_server.location, body, {
                 headers: {
                     'Content-Type': 'application/ld+json'
-                },
-                body: JSON.stringify({
-                    "@context": ["https://www.w3.org/ns/solid/notification/v1"],
-                    "type": "http://www.w3.org/ns/solid/notifications#WebhookChannel2023",
-                    "topic": inbox_location,
-                    "sendTo": "http://localhost:8085/"
-                })
-            })
+                }
+            });
             if (response_subscribe_ldes_stream.status === 200) {
                 console.log(`Subscribed to the inbox container location: ${inbox_location}`);
                 return true;
