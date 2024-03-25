@@ -95,13 +95,11 @@ export class NotificationServiceHTTPServer {
         request.on('end', async () => {
             try {
                 const notification = JSON.parse(body);
-                console.log(notification);
                 const published_time = (new Date(notification.published).getTime()).toString();
                 const stream = notification.target.replace(/\/\d+\/$/, '/');
                 const key = `stream:${stream}:${published_time}`;
                 const resource_location = notification.object;
                 if (this.check_if_container(resource_location) === true) {
-                    console.log(stream, published_time, resource_location);
                     const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "container_location": resource_location });
                     this.send_to_websocket_server(parsed_notification);
                 }
@@ -119,9 +117,7 @@ export class NotificationServiceHTTPServer {
                         console.log("Setting the response in the cache");
                         await this.cacheService.set(key, response_text);
                         await this.cacheService.setTimeToLive(key, 60);
-                        const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "event": response_text });
-                        console.log(parsed_notification);
-                        
+                        const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "event": response_text });                        
                         this.send_to_websocket_server(parsed_notification);
                     } catch (error) {
                         this.logger.error("Error fetching the resource: " + error)
