@@ -62,8 +62,9 @@ export class SubscribeNotification {
                     "topic": inbox_location,
                     "sendTo": "http://localhost:8085/"
                 })
-            });
+            })
             if (response_subscribe_ldes_stream.status === 200) {
+                console.log(`Subscribed to the inbox container location: ${inbox_location}`);
                 return true;
             }
             else {

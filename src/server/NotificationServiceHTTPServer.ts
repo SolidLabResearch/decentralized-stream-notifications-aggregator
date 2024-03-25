@@ -16,7 +16,7 @@ export class NotificationServiceHTTPServer {
     public connection: any;
     public client: any;
     public logger: any;
-    private subscription_notification: SubscribeNotification;
+    public subscription_notification: SubscribeNotification;
     private websocket_server: any;
     public websocket_handler: WebSocketServerHandler;
 
@@ -51,7 +51,7 @@ export class NotificationServiceHTTPServer {
      */
     private async setupServer(port: number) {
         this.server.listen(port, () => {
-            this.logger.info(`Server listening on port ${port}`);
+            console.log(`Server listening on port ${port}`);
         });
     }
     /**
@@ -63,6 +63,7 @@ export class NotificationServiceHTTPServer {
      * @memberof NotificationServiceHTTPServer
      */
     public async request_handler(request: http.IncomingMessage, response: http.ServerResponse) {
+        console.log(`Request received for ${request.url}`);
         if (request.method === 'POST') {
             await this.handleNotificationPostRequest(request, response);
         }
@@ -93,11 +94,13 @@ export class NotificationServiceHTTPServer {
         request.on('end', async () => {
             try {
                 const notification = JSON.parse(body);
+                console.log(notification);
                 const published_time = (new Date(notification.published).getTime()).toString();
                 const stream = notification.target.replace(/\/\d+\/$/, '/');
                 const key = `stream:${stream}:${published_time}`;
                 const resource_location = notification.object;
                 if (this.check_if_container(resource_location) === true) {
+                    console.log(stream, published_time, resource_location);
                     const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "container_location": resource_location });
                     this.send_to_websocket_server(parsed_notification);
                 }
@@ -117,6 +120,8 @@ export class NotificationServiceHTTPServer {
                         await this.cacheService.set(key, response_text);
                         await this.cacheService.setTimeToLive(key, 60);
                         const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "event": response_text });
+                        console.log(parsed_notification);
+                        
                         this.send_to_websocket_server(parsed_notification);
                     } catch (error) {
                         this.logger.error("Error fetching the resource: " + error)

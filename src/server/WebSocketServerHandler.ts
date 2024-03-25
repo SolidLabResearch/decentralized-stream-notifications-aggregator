@@ -1,6 +1,7 @@
 import * as WebSocket from 'websocket';
 import { CacheService } from '../service/CacheService';
 import { SubscribeNotification } from '../service/SubscribeNotification';
+import { extract_ldp_inbox } from '../utils/Util';
 
 export class WebSocketServerHandler {
 
@@ -63,9 +64,10 @@ export class WebSocketServerHandler {
         });
     }
 
-    public set_connections(subscribed_stream: string, connection: WebSocket){
+    public async set_connections(subscribed_stream: string, connection: WebSocket){
         if (!this.websocket_connections.has(subscribed_stream)) {   
-            this.subscribe_notification.subscribe_inbox(subscribed_stream);                     
+            let stream_inbox = await extract_ldp_inbox(subscribed_stream) as string;            
+            this.subscribe_notification.subscribe_inbox(stream_inbox);                     
             this.websocket_connections.set(subscribed_stream, [connection]);
         }
         else {
