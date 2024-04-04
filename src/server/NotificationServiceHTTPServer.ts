@@ -40,7 +40,7 @@ export class NotificationServiceHTTPServer {
         this.websocket_handler = new WebSocketServerHandler(this.websocket_server);
         this.setupServer(port);
         this.connect_to_websocket_server('ws://localhost:8085/');
-        this.websocket_handler.handle_communication(this.cacheService);
+        this.websocket_handler.handle_communication();
 
     }
     /**

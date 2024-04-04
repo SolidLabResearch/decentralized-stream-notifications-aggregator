@@ -3,7 +3,7 @@
 The Solid Stream Notifications Aggregator is a service which works on top of one or more Solid Pods to provide an immediate aggregator for the clients to consume the latest streaming data stored in the Solid Pods via the Solid Notifications Protocol's [WebHookChannel2023](https://solid.github.io/notifications/webhook-channel-2023).  
 
 
-An initial architecutre of the Solid Stream Notifications Aggregator is shown below:
+## Architecture
 
 ![Solid Stream Notifications Aggregator Architecture](./architecture.png)
 
