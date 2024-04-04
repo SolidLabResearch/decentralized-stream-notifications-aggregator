@@ -118,6 +118,11 @@ export class CacheService {
     }
 
 
+    /**
+     * Get the most recent key-value pair from the Redis cache.
+     * @param {string} ldes_stream - The LDES stream to get the most recent key-value pair from.    
+     * @returns {Promise<{ key: string, value: string }>} - A promise that resolves to an object containing the most recent key-value pair in the cache.
+     */
     async get_recent_key_value(ldes_stream: string): Promise<{ key: string, value: string }> {
         try {
             // example of a key is, stream:http://localhost:3000/aggregation_pod/aggregation/:1710250027636
@@ -143,11 +148,20 @@ export class CacheService {
     
     
 
+    /**
+     * Sets the time to live for a key in the Redis cache.
+     * @param {string} key - The key to set the time to live for.
+     * @param {number} time_to_live - The time to live in seconds.
+     * @returns {Promise<void>} - A promise that resolves when the time to live is set.
+     */
     async setTimeToLive(key: string, time_to_live: number) {
         // setting the time to live for the key in seconds.
         await this.client.expire(key, time_to_live);
     }
 
+    /**
+     * Clears the cache.
+     */
     async clearCache() {
         await this.client.flushall();
     }

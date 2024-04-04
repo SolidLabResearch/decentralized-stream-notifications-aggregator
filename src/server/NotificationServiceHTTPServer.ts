@@ -24,7 +24,6 @@ export class NotificationServiceHTTPServer {
     /**
      * Creates an instance of NotificationServiceHTTPServer.
      * @param {number} port - The port where the HTTP server will listen.
-     * @param {string[]} pod_url - The location of the Solid Pod from which the notifications are retrieved.
      * @param {*} logger - The logger object.
      * @memberof NotificationServiceHTTPServer
      */
@@ -172,6 +171,10 @@ export class NotificationServiceHTTPServer {
         response.end('OK');
     }
 
+    /**
+     * Sends a message to the WebSocket server.
+     * @param {string} message - The message to send to the WebSocket server.
+     */
     public send_to_websocket_server(message: string) {
         if (this.connection.connected) {
             this.connection.sendUTF(message);
@@ -183,6 +186,10 @@ export class NotificationServiceHTTPServer {
         }
     }
 
+    /**
+     * Connects to the WebSocket server.
+     * @param {string} wss_url - The URL of the WebSocket server.
+     */
     public async connect_to_websocket_server(wss_url: string) {
         this.client.connect(wss_url, 'solid-stream-notifications-aggregator');
         this.client.on('connect', (connection: typeof websocket.connection) => {
@@ -195,6 +202,11 @@ export class NotificationServiceHTTPServer {
         });
     }
 
+    /**
+     * Checks if the resource location is a container.
+     * @param {string} resource_location - The location of the resource.
+     * @returns {boolean} - Returns true if the resource location is a container. Returns false if the resource location is not a container.
+     */
     public check_if_container(resource_location: string): boolean {
         if (resource_location.endsWith('/')) {
             return true;

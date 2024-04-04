@@ -1,22 +1,30 @@
 import * as WebSocket from 'websocket';
-import { CacheService } from '../service/CacheService';
 import { SubscribeNotification } from '../service/SubscribeNotification';
 import { extract_ldp_inbox } from '../utils/Util';
 
+/**
+ *
+ */
 export class WebSocketServerHandler {
 
     public websocket_server: any;
     public websocket_connections: Map<string, WebSocket[]>;
     public subscribe_notification: SubscribeNotification;
 
-
+    /**
+     * Creates an instance of WebSocketServerHandler.
+     * @param {WebSocket.server} websocket_server - The WebSocket server.
+     */
     constructor(websocket_server: WebSocket.server) {
         this.websocket_server = websocket_server;
         this.websocket_connections = new Map<string, WebSocket[]>();
         this.subscribe_notification = new SubscribeNotification();
     }
 
-    public async handle_communication(cache_service: CacheService) {
+    /**
+     * Handles the communication for the WebSocket server.
+     */
+    public async handle_communication() {
         console.log(`Handling the communication for the WebSocket server.`);
         this.websocket_server.on('connect', (connection: any) => {
             console.log(`Connection received from the client with address: ${connection.remoteAddress}`);
@@ -30,19 +38,19 @@ export class WebSocketServerHandler {
                     const ws_message = JSON.parse(message_utf8);
                     if (Object.keys(ws_message).includes('subscribe')) {
                         console.log(`Received a subscribe message from the client.`);
-                        let stream_to_subscribe = ws_message.subscribe;
-                        for (let stream of stream_to_subscribe) {
+                        const stream_to_subscribe = ws_message.subscribe;
+                        for (const stream of stream_to_subscribe) {
                             console.log(`Subscribed to the stream: ${stream}`);
                             this.set_connections(stream, connection);
                         }
                     }
                     else if (Object.keys(ws_message).includes('event')) {
                         console.log(`Received a new event message from the client.`);
-                        let connection = this.websocket_connections.get(ws_message.stream);
+                        const connection = this.websocket_connections.get(ws_message.stream);
                         if (connection !== undefined) {
                             for (const [stream, connections] of this.websocket_connections) {
                                 if (stream == ws_message.stream) {
-                                    for (let connection of connections) {
+                                    for (const connection of connections) {
                                         connection.send(JSON.stringify(ws_message));
                                     }
                                 }
@@ -64,9 +72,14 @@ export class WebSocketServerHandler {
         });
     }
 
+    /**
+     * Sets the connections for the WebSocket server's Map.
+     * @param {string} subscribed_stream - The subscribed stream.
+     * @param {WebSocket} connection - The WebSocket connection.
+     */
     public async set_connections(subscribed_stream: string, connection: WebSocket){
         if (!this.websocket_connections.has(subscribed_stream)) {   
-            let stream_inbox = await extract_ldp_inbox(subscribed_stream) as string;            
+            const stream_inbox = await extract_ldp_inbox(subscribed_stream) as string;            
             this.subscribe_notification.subscribe_inbox(stream_inbox);                     
             this.websocket_connections.set(subscribed_stream, [connection]);
         }

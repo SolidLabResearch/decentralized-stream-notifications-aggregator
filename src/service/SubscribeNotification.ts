@@ -47,6 +47,11 @@ export class SubscribeNotification {
         }
     }
 
+    /**
+     * Subscribes to the notification server for a specific inbox location.
+     * @param {string} inbox_location - The inbox location to subscribe to.
+     * @returns {(Promise<boolean | undefined>)} - Returns a promise with a boolean or undefined. If the subscription is successful, it returns true. If the subscription fails, it throws an error.
+     */
     public async subscribe_inbox(inbox_location:string): Promise<boolean | undefined> {
         const subscription_server = await extract_subscription_server(inbox_location);
         if (subscription_server === undefined) {
