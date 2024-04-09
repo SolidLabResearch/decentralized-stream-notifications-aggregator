@@ -1,0 +1,5 @@
+{
+    "__comment__": "This is the configuration file. Please change it to your needs.",
+    "notif_aggregator_http_server_url": "http://n061-20b.wall2.ilabt.iminds.be:8085/",
+    "notif_aggregator_ws_server_url": "ws://n061-20b.wall2.ilabt.iminds.be:8085/"
+}

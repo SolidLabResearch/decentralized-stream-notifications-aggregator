@@ -1,5 +1,6 @@
 import { extract_ldp_inbox, extract_subscription_server } from "../utils/Util";
 import * as WebSocket from 'websocket';
+import * as AGGREGATOR_SETUP from '../config/notif_aggregator_setup.json';
 import axios from 'axios';
 
 /**
@@ -30,7 +31,7 @@ export class SubscribeNotification {
                 "@context": ["https://www.w3.org/ns/solid/notification/v1"],
                 "type": "http://www.w3.org/ns/solid/notifications#WebhookChannel2023",
                 "topic": ldes_stream,
-                "sendTo": "http://localhost:8085/"
+                "sendTo": `${AGGREGATOR_SETUP.notif_aggregator_http_server_url}`
             }
 
             const response_subscribe_ldes_stream = await axios.post(subscription_server.location, body, {
@@ -61,7 +62,7 @@ export class SubscribeNotification {
                 "@context": ["https://www.w3.org/ns/solid/notification/v1"],
                 "type": "http://www.w3.org/ns/solid/notifications#WebhookChannel2023",
                 "topic": inbox_location,
-                "sendTo": "http://localhost:8085/"
+                "sendTo": `${AGGREGATOR_SETUP.notif_aggregator_http_server_url}`
             };
 
 
