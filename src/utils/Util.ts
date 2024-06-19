@@ -9,6 +9,7 @@ const parser = new N3.Parser();
  * @returns {Promise<SubscriptionServerNotification | undefined>} - A promise which returns the subscription server or if not returns undefined.
  */
 export async function extract_subscription_server(resource: string): Promise<SubscriptionServerNotification | undefined> {
+    const store = new N3.Store();
     try {
         const response = await axios.head(resource);
         const link_header = response.headers['link'];
@@ -52,10 +53,10 @@ export async function extract_subscription_server(resource: string): Promise<Sub
  * @returns {Promise<string>} - A promise which returns the inbox location.
  */
 export async function extract_ldp_inbox(ldes_stream_location: string) {
+    const store = new N3.Store();
     try {
         const response = await axios.get(ldes_stream_location);
         if (response) {
-            const store = new N3.Store();
             await parser.parse(response.data, (error: any, quad: any) => {
                 if (error) {
                     console.error(error);
