@@ -2,7 +2,6 @@ import axios from 'axios';
 import { SubscriptionServerNotification } from './Types';
 const N3 = require('n3');
 const parser = new N3.Parser();
-const store = new N3.Store();
 
 /**
  * Extracts the subscription server from the given resource.
@@ -56,6 +55,7 @@ export async function extract_ldp_inbox(ldes_stream_location: string) {
     try {
         const response = await axios.get(ldes_stream_location);
         if (response) {
+            const store = new N3.Store();
             await parser.parse(response.data, (error: any, quad: any) => {
                 if (error) {
                     console.error(error);
