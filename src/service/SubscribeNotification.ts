@@ -23,6 +23,7 @@ export class SubscribeNotification {
      */
     public async subscribe_stream(ldes_stream: string): Promise<boolean | undefined> {
         const inbox = await extract_ldp_inbox(ldes_stream) as string;
+        console.log(`Inbox location: ${inbox}`);
         const subscription_server = await extract_subscription_server(inbox);
         if (subscription_server === undefined) {
             throw new Error("Subscription server is undefined.");

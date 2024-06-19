@@ -66,7 +66,7 @@ export async function extract_ldp_inbox(ldes_stream_location: string) {
                 }
             });
             const inbox = store.getQuads(null, 'http://www.w3.org/ns/ldp#inbox', null)[0].object.value;
-            return inbox;
+            return ldes_stream_location + inbox;
         }
         else {
             throw new Error("The response object is empty.");
