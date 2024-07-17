@@ -24,8 +24,7 @@ export class SubscribeNotification {
     public async subscribe_stream(ldes_stream: string): Promise<boolean | undefined> {
         const inbox = await extract_ldp_inbox(ldes_stream) as string;
         console.log(`Inbox location: ${inbox}`);
-        // const subscription_server = await extract_subscription_server(inbox);
-        const subscription_server = AGGREGATOR_SETUP.subscription_server;
+        const subscription_server = await extract_subscription_server(inbox);
         if (subscription_server === undefined) {
             throw new Error("Subscription server is undefined.");
         } else {
@@ -36,7 +35,7 @@ export class SubscribeNotification {
                 "sendTo": `${AGGREGATOR_SETUP.notif_aggregator_http_server_url}`
             }
 
-            const response_subscribe_ldes_stream = await axios.post(subscription_server, body, {
+            const response_subscribe_ldes_stream = await axios.post(subscription_server.location, body, {
                 headers: {
                     'Content-Type': 'application/ld+json'
                 }
@@ -56,8 +55,7 @@ export class SubscribeNotification {
      * @returns {(Promise<boolean | undefined>)} - Returns a promise with a boolean or undefined. If the subscription is successful, it returns true. If the subscription fails, it throws an error.
      */
     public async subscribe_inbox(inbox_location:string): Promise<boolean | undefined> {
-        // const subscription_server = await extract_subscription_server(inbox_location);
-        const subscription_server = AGGREGATOR_SETUP.subscription_server;
+        const subscription_server = await extract_subscription_server(inbox_location);
         if (subscription_server === undefined) {
             throw new Error("Subscription server is undefined.");
         } else {
@@ -69,7 +67,7 @@ export class SubscribeNotification {
             };
 
 
-            const response_subscribe_ldes_stream = await axios.post(subscription_server, body, {
+            const response_subscribe_ldes_stream = await axios.post(subscription_server.location, body, {
                 headers: {
                     'Content-Type': 'application/ld+json'
                 }
