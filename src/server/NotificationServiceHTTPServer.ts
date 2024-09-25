@@ -109,7 +109,7 @@ export class NotificationServiceHTTPServer {
                                 'Accept': 'text/turtle'
                             }
                         });
-                        this.logger.info("Resource fetched successfully");
+                        this.logger.info("resource_fetched_successfully");
                         const response_text = response_fetch_response.data;
                         // set the response in the cache, with the key as the LDES stream and the published time.
                         // set the time to live for the cache to 60 seconds.
@@ -141,7 +141,7 @@ export class NotificationServiceHTTPServer {
      * @memberof NotificationServiceHTTPServer
      */
     private async handleClientGetRequest(request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
-        this.logger.info(`GET request received for ${request.url}`)
+        this.logger.info(`GET_request_received_for_${request.url}`)
         console.log(`GET request received for ${request.url}`);
         const parsed_url = url.parse(request.url!, true);
         const query_parameters = parsed_url.query;
