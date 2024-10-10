@@ -1,7 +1,7 @@
 import { fork, ChildProcess } from 'child_process';
 
 export function startNotificationAggregatorProcess() {
-    const aggregator_process: ChildProcess = fork('./dist/index.js')
+    const aggregator_process: ChildProcess = fork('./dist/index.js', ['cache-notifications']);
 
     aggregator_process.on('message', (message: string) => {
         console.log(`Message from the notification aggregator process: ${message}`);
