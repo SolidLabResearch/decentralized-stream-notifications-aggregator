@@ -3,6 +3,7 @@ import * as bunyan from "bunyan";
 import * as fs from 'fs';
 import { program } from "commander";
 const log_file = fs.createWriteStream('./logs/info.log', { flags: 'a' });
+const resource_used_log_file = `./logs/resource_used.csv`;
 
 const logger = bunyan.createLogger({
     name: 'solid-stream-notifications-cache',
@@ -19,7 +20,27 @@ const logger = bunyan.createLogger({
             }
         }
     }
-})
+});
+
+interface MemoryUsage {
+    rss: number;
+    heapTotal: number;
+    heapUsed: number;
+    external: number;
+}
+
+fs.writeFileSync(resource_used_log_file, `timestamp, cpu_user, cpu_system, rss, heapTotal, heapUsed, external\n`);
+
+
+function logCpuMemoryUsage() {
+    const cpuUsage = process.cpuUsage(); // in microseconds
+    const memoryUsage: MemoryUsage = process.memoryUsage(); // in bytes
+    const timestamp = Date.now();
+    const logData = `${timestamp}, ${cpuUsage.user}, ${cpuUsage.system}, ${memoryUsage.rss}, ${memoryUsage.heapTotal}, ${memoryUsage.heapUsed}, ${memoryUsage.external}\n`;
+    fs.appendFileSync(resource_used_log_file, logData);
+}
+
+setInterval(logCpuMemoryUsage, 500);
 
 program
     .version('1.0.0')
