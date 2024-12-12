@@ -104,19 +104,21 @@ export class NotificationServiceHTTPServer {
                 }
                 else if (this.check_if_container(resource_location) === false) {
                     try {
+                        let time_before_fetch = Date.now();
                         const response_fetch_response = await axios.get(resource_location, {
                             headers: {
                                 'Accept': 'text/turtle'
                             }
                         });
-                        this.logger.info("resource_fetched_successfully");
+                        let time_post_fetch = Date.now();
+                        this.logger.info(`${time_post_fetch - time_before_fetch}`);
                         const response_text = response_fetch_response.data;
                         // set the response in the cache, with the key as the LDES stream and the published time.
                         // set the time to live for the cache to 60 seconds.
                         console.log("Setting the response in the cache");
                         await this.cacheService.set(key, response_text);
                         await this.cacheService.setTimeToLive(key, 60);
-                        const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "event": response_text });                        
+                        const parsed_notification = JSON.stringify({ "stream": stream, "published_time": published_time, "event": response_text });
                         this.send_to_websocket_server(parsed_notification);
                     } catch (error) {
                         this.logger.error("Error fetching the resource: " + error)
